@@ -127,6 +127,12 @@ app.post("/login", (req, res) => {
   res.redirect('/urls');
 });
 
+app.post("/logout", (req, res) => {
+  log('clear?')
+  res.clearCookie('username');
+  res.redirect('/urls');
+});
+
 
 app.listen(PORT, () => {
   console.log(`Example app is listening on port ${PORT}`)
