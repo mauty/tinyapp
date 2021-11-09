@@ -1,3 +1,5 @@
+const log = console.log
+
 // CONFIG
 
 const express = require("express");
@@ -97,6 +99,14 @@ app.post("/urls", (req, res) => {
   }
   urlDatabase[shortURL] = longURL
   res.redirect(`urls/${shortURL}`);         // Respond with 'Ok' (we will replace this)
+});
+
+app.post("/login", (req, res) => {
+  // log('req.body.username',req.body.username)
+  let username = req.body.username;
+  res.cookie('username', username);
+  // res.send('Cookie Set');
+  res.redirect('/urls');
 });
 
 
