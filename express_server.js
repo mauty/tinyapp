@@ -1,11 +1,20 @@
-const express = require("express");
-const app = express();
-const PORT = 8080;
+// CONFIG
 
-app.set("view engine", "ejs");
+const express = require("express");
+const PORT = 8080;
+const app = express();
+
+const morgan = require('morgan');
+app.use(morgan('short'));
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(express.static('public'));
+
+app.set("view engine", "ejs");
+
+// HELPER FUNCTIONS
 
 function generateRandomString() {
   let result           = '';
@@ -17,12 +26,15 @@ function generateRandomString() {
   return result;
 }
 
-
+// DATABASE
 
 let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 }
+
+
+// ROUTES
 
 app.get("/", (req, res) => {
   res.send("Hello");
@@ -40,10 +52,27 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL
+  console.log(shortURL)
+  delete urlDatabase[shortURL];
+  res.redirect('/urls/');
+});
+
 app.get("/urls/:shortURL", (req, res) => {
   console.log(urlDatabase);
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
+});
+
+// Update a URL
+app.post("/urls/:shortURL", (req, res) => {
+  console.log('req.params.shortURL=>', req.params)
+  const shortURL = req.params.shortURL;
+  const longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL;
+  res.redirect('/urls/')
+  // console.log('hello')
 });
 
 app.get("/u/:shortURL", (req, res) => {
