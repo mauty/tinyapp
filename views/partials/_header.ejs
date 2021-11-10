@@ -1,27 +1,58 @@
 <header>
-  <nav class="navbar navbar-expand-md navbar-dark bg-success">
-    <a class="navbar-brand" href="/urls">TinyApp</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="nav-item nav-link" href="/urls">My URLs</a>
-        <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <% if(username){ %>
-          <h3>Welcome, <%= username %> </h3>
-          <form class="d-flex" method="POST" action="/logout">
-            <button class="btn btn-primary" type="submit">Logout</button>
-          </form>
-        <% } else{ %>  
-          <form class="d-flex" method="POST" action="/login">
-            <input class="form-control me-2" name="username" type="text" placeholder="username" aria-label="login">
-            <button class="btn btn-primary" type="submit">Login</button>
-          </form>
-        <% } %>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="/urls">TinyApp</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="/urls">My URLs</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/urls/new">Create New URL</a>
+          </li>
+          </ul>
+            <% if(username){ %>
+              <span class="navbar-text" style="margin-right: 16px;" >Welcome, <%= username %> </span>
+              <form class="d-flex" method="POST" action="/logout">
+                <button class="btn btn-outline-secondary" type="submit">Logout</button>
+              </form>
+            <% } else{ %>  
+              <form class="d-flex" method="POST" action="/login">
+                <input class="form-control me-2" name="username" type="text" placeholder="username" aria-label="login">
+                <button class="btn btn-outline-primary" type="submit">Login</button>
+              </form>
+            <% } %>
       </div>
     </div>
   </nav>
 </header>
 
-
+<!-- 
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled">Disabled</a>
+        </li>
+      </ul>
+      <form class="d-flex">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+</nav> -->
