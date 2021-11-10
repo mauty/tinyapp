@@ -16,7 +16,6 @@ app.use(cookieParser())
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
 
-// app.use(express.static('/public'));
 app.use(express.static('public'));
 
 
@@ -118,6 +117,11 @@ app.post("/urls", (req, res) => {
   }
   urlDatabase[shortURL] = longURL
   res.redirect(`urls/${shortURL}`);         // Respond with 'Ok' (we will replace this)
+});
+
+app.get("/register", (req, res) => {
+  const templateVars = {}
+  res.render("register", templateVars)
 });
 
 app.post("/login", (req, res) => {
