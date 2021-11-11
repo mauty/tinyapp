@@ -41,7 +41,21 @@ const emailLookup = (email) => {
     } 
   }
   return null;
-} 
+}
+
+const urlsForUser = (id) => {
+  let userUrlDatabase = {};
+  for (let url in urlDatabase) {
+    if (urlDatabase[url].userID === id) {
+      userUrlDatabase[url] = {
+        longURL: urlDatabase[url].longURL,
+        userID: id,
+      }
+    }
+  }
+  return userUrlDatabase;
+};
+
 
 // DATABASE
 
@@ -103,14 +117,24 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect('/urls/');
 });
 
+// URLs Show
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.cookies["user_id"];
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    user: users[userID]
+  const shortURL = req.params.shortURL
+  let userUrlDatabase = urlsForUser(userID);
+  const templateVars = {urls: userUrlDatabase, shortURL: shortURL, user: users[userID] };
+  let urlFound = false;
+  for (let url in userUrlDatabase) {
+    // log('url:',url, 'shortURL:', shortURL)
+    if (url === shortURL) {
+      urlFound = true;
+    }
+  }
+  if (urlFound === true) {
+    res.render("urls_show", templateVars);
   };
-  res.render("urls_show", templateVars);
+  res.render('error')
+  // log('templateVars', templateVars)
 });
 
 // Update a URL
@@ -143,10 +167,12 @@ app.get("/u/:shortURL", (req, res) => {
 app.get("/urls", (req, res) => {
   const userID = req.cookies["user_id"];
   // log(userID)
-  const templateVars = {urls: urlDatabase, user: users[userID] };
+  log('urlsForUser:',urlsForUser(userID));
+  let userUrlDatabase = urlsForUser(userID);
+  const templateVars = {urls: userUrlDatabase, user: users[userID] };
   // log('templateVars:',templateVars)
   // log('user email:',users[userID].email)
-  log('urlDatabase:',urlDatabase)
+  // log('urlDatabase:',urlDatabase)
   res.render("urls_index", templateVars);
 });
 
