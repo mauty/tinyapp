@@ -79,7 +79,7 @@ app.get("/urls/:shortURL", (req, res) => {
   if (urlFound === true) {
     res.render("urls_show", templateVars);
   };
-  res.render('error')
+  res.render('./errors/error')
 });
 
 
@@ -87,9 +87,8 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   const userID = req.session["user_id"];
   if (!userID) {
-    res.render('noLogin')
+    res.render('./errors/noLogin')
   }
-  console.log('req.params.shortURL=>', req.params)
   const shortURL = req.params.shortURL;
   let longURL = req.body.longURL;
   if (!longURL.includes('http://')) {
