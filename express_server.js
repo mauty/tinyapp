@@ -54,7 +54,7 @@ const users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    password: "456"
   },
  "user2RandomID": {
     id: "user2RandomID", 
@@ -79,6 +79,9 @@ app.get("/hello", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   const userID = req.cookies["user_id"];
+  if (!userID) {
+    res.redirect('/urls')
+  }
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
@@ -136,6 +139,11 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+  const userID = req.cookies["user_id"];
+  if (!userID) {
+    res.status(400).send("User must be logged in to create a short URL\n")
+    return;
+  }
   let shortURL = generateRandomString()
   let longURL = req.body.longURL;  // Log the POST request body to the console
   if (!longURL.includes('http://')) {
@@ -151,8 +159,13 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  const templateVars = {}
-  res.render("login", templateVars)
+  const userID = req.cookies["user_id"];
+  if (!userID) {
+    const templateVars = {}
+    res.render("login", templateVars)
+  } else {
+    res.redirect('/urls')
+  }
 });
 
 
