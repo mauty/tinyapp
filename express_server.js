@@ -1,6 +1,6 @@
 const log = console.log
 
-// CONFIG
+/// CONFIG ///
 const express = require("express");
 const PORT = 8080;
 const app = express();
@@ -27,20 +27,15 @@ app.set("view engine", "ejs");
 
 
 
-// ROUTES
+/// ROUTES ///
 
+// HOME
 app.get("/", (req, res) => {
-  res.send("Hello");
+  res.redirect("/urls");
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
+// CREATE NEW URL
 app.get("/urls/new", (req, res) => {
   const userID = req.session["user_id"];
   if (!userID) {
@@ -54,6 +49,8 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+
+// DELETE URL
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userID = req.session["user_id"];
   if (!userID) {
@@ -65,15 +62,16 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect('/urls/');
 });
 
-// URLs Show
+
+// DISPLAY URL
 app.get("/urls/:shortURL", (req, res) => {
   const userID = req.session["user_id"];
   const shortURL = req.params.shortURL
   let userUrlDatabase = urlsForUser(userID);
   const templateVars = {urls: userUrlDatabase, shortURL: shortURL, user: userDB[userID] };
+  
   let urlFound = false;
   for (let url in userUrlDatabase) {
-    // log('url:',url, 'shortURL:', shortURL)
     if (url === shortURL) {
       urlFound = true;
     }
@@ -82,10 +80,10 @@ app.get("/urls/:shortURL", (req, res) => {
     res.render("urls_show", templateVars);
   };
   res.render('error')
-  // log('templateVars', templateVars)
 });
 
-// Update a URL
+
+// PROCESS UPDATED URL
 app.post("/urls/:shortURL", (req, res) => {
   const userID = req.session["user_id"];
   if (!userID) {
@@ -99,11 +97,11 @@ app.post("/urls/:shortURL", (req, res) => {
   }
   urlDatabase[shortURL].longURL = longURL;
   res.redirect('/urls/')
-  // console.log('hello')
 });
 
+
+// REDIRECT SHORTURL TO LONGURL
 app.get("/u/:shortURL", (req, res) => {
-  // const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   const requestedShortURL = req.params.shortURL
   for (let url in urlDatabase) {
     if (requestedShortURL === url ) {
@@ -121,16 +119,13 @@ app.get("/urls", (req, res) => {
   if (!userID) {
     res.render('noLogin')
   }
-  // log(userID)
-  log('urlsForUser:',urlsForUser(userID));
   let userUrlDatabase = urlsForUser(userID);
   const templateVars = {urls: userUrlDatabase, user: userDB[userID] };
-  // log('templateVars:',templateVars)
-  // log('user email:',users[userID].email)
-  // log('urlDatabase:',urlDatabase)
   res.render("urls_index", templateVars);
 });
 
+
+// PROCESS CREATE NEW URL
 app.post("/urls", (req, res) => {
   const userID = req.session["user_id"];
   if (!userID) {
@@ -146,24 +141,15 @@ app.post("/urls", (req, res) => {
   res.redirect(`urls/${shortURL}`);         // Respond with 'Ok' (we will replace this)
 });
 
+
+//REGISTER FORM
 app.get("/register", (req, res) => {
   const templateVars = {}
   res.render("register", templateVars)
 });
 
-app.get("/login", (req, res) => {
-  const userID = req.session["user_id"];
-  if (!userID) {
-    const templateVars = {}
-    res.render("login", templateVars)
-  } else {
-    res.redirect('/urls')
-  }
-});
 
-
-
-// REGISTER FORM POST
+// PROCESS REGISTER FORM
 app.post("/register", (req, res) => {
   let userID = generateRandomString()
   const { email, password } = req.body;
@@ -175,27 +161,33 @@ app.post("/register", (req, res) => {
   }
   if (getUserByEmail(newUser.email, userDB)) {
     res.status(400).send('email already exists in database')
-    // res.redirect('/register')
     return;
   }
   userDB[userID] = newUser;
-  log('userDB:', userDB)
   req.session.user_id = userID;
   res.redirect('/urls')
 });
 
 
+// LOGIN FORM
+app.get("/login", (req, res) => {
+  const userID = req.session["user_id"];
+  if (!userID) {
+    const templateVars = {}
+    res.render("login", templateVars)
+  } else {
+    res.redirect('/urls')
+  }
+});
 
 
-// LOGIN FORM POST
+// PROCESS LOGIN FORM
 app.post("/login", (req, res) => {
-  // lookup email in user 
   const { email, password }  = req.body;
   let currentUserID = getUserByEmail(email, userDB)
   if (!currentUserID) {
     res.status(403).send('email not found')
   }
-  // if (enteredPassword !== users[currentUserID].password ) {
   if (!bcrypt.compareSync(password, userDB[currentUserID].password)) {
     res.status(403).send('password does not match')
   }
@@ -205,13 +197,20 @@ app.post("/login", (req, res) => {
   }
 });
 
+
+// LOGOUT
 app.post("/logout", (req, res) => {
-  log('clear?')
   req.session = null;
   res.redirect('/urls');
 });
 
 
+// DASHBOARD
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+
 app.listen(PORT, () => {
-  console.log(`Example app is listening on port ${PORT}`)
+  console.log(`Tinyapp is listening on port ${PORT}`)
 });
