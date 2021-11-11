@@ -111,6 +111,10 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  const userID = req.cookies["user_id"];
+  if (!userID) {
+    res.render('noLogin')
+  }
   const shortURL = req.params.shortURL
   console.log(shortURL)
   delete urlDatabase[shortURL];
@@ -139,6 +143,10 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // Update a URL
 app.post("/urls/:shortURL", (req, res) => {
+  const userID = req.cookies["user_id"];
+  if (!userID) {
+    res.render('noLogin')
+  }
   console.log('req.params.shortURL=>', req.params)
   const shortURL = req.params.shortURL;
   let longURL = req.body.longURL;
