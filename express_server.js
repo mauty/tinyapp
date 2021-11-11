@@ -141,7 +141,9 @@ app.post("/urls", (req, res) => {
 
 //REGISTER FORM
 app.get("/register", (req, res) => {
-  const templateVars = {};
+  const userID = req.session.userId;
+  let userUrlDatabase = urlsForUser(userID);
+  const templateVars = {urls: userUrlDatabase, user: userDB[userID] };
   return res.render('register', templateVars);
 });
 
@@ -172,8 +174,9 @@ app.post("/register", (req, res) => {
 // LOGIN FORM
 app.get("/login", (req, res) => {
   const userID = req.session.userId;
+  let userUrlDatabase = urlsForUser(userID);
+  const templateVars = {urls: userUrlDatabase, user: userDB[userID] };
   if (!userID) {
-    const templateVars = {};
     return res.render('login', templateVars);
   }
   return res.redirect('/urls');
