@@ -53,10 +53,10 @@ app.get("/urls/new", (req, res) => {
 // DELETE URL
 app.post("/urls/:shortURL/delete", (req, res) => {
   const userID = req.session.userId;
+  const shortURL = req.params.shortURL;
   if (!userID) {
     return res.render('./errors/noLogin');
   }
-  const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
   return res.redirect('/urls/');
 });
@@ -85,11 +85,11 @@ app.get("/urls/:shortURL", (req, res) => {
 // PROCESS UPDATED URL
 app.post("/urls/:shortURL", (req, res) => {
   const userID = req.session.userId;
+  const shortURL = req.params.shortURL;
+  let longURL = req.body.longURL;
   if (!userID) {
     return res.render('./errors/noLogin');
   }
-  const shortURL = req.params.shortURL;
-  let longURL = req.body.longURL;
   if (!longURL.includes('http://')) {
     longURL = 'http://' + longURL;
   }
@@ -103,7 +103,7 @@ app.get("/u/:shortURL", (req, res) => {
   const requestedShortURL = req.params.shortURL;
   for (let url in urlDatabase) {
     if (requestedShortURL === url) {
-      const longURL = urlDatabase[req.params.shortURL].longURL;
+      const longURL = urlDatabase[requestedShortURL].longURL;
       return res.redirect(longURL);
     }
   }
@@ -126,11 +126,11 @@ app.get("/urls", (req, res) => {
 // PROCESS CREATE NEW URL
 app.post("/urls", (req, res) => {
   const userID = req.session.userId;
+  let shortURL = generateRandomString();
+  let longURL = req.body.longURL;
   if (!userID) {
     return res.status(400).send("User must be logged in to create a short URL\n");
   }
-  let shortURL = generateRandomString();
-  let longURL = req.body.longURL;
   if (!longURL.includes('http://')) {
     longURL = 'http://' + longURL;
   }
@@ -154,12 +154,10 @@ app.post("/register", (req, res) => {
   const { email, password } = req.body;
   let hashedPassword = bcrypt.hashSync(password, 10);
   let newUser = { id: userID, email: email, password: hashedPassword };
-  log('newUser:', newUser)
   if (newUser.email.length === 0) {
     return res.status(400).send('please provide an email');
   }
   if (password.length === 0) {
-    log('newUser.password:', newUser.password)
     return res.status(400).send('please provide a password');
   }
   if (getUserByEmail(newUser.email, userDB)) {
