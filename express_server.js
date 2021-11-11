@@ -46,13 +46,19 @@ const emailLookup = (email) => {
 // DATABASE
 
 let urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-}
+  "b2xVn2": {
+    longURL: "http://www.lighthouselabs.ca",
+    userID: "qM7hmG"
+  },
+  "9sm5xK": {
+    longURL: "http://www.google.com",
+    userID: "qM7hmG"
+  }
+};
 
 const users = { 
-  "userRandomID": {
-    id: "userRandomID", 
+  "qM7hmG": {
+    id: "qM7hmG", 
     email: "user@example.com", 
     password: "456"
   },
@@ -101,7 +107,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const userID = req.cookies["user_id"];
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user: users[userID]
   };
   res.render("urls_show", templateVars);
@@ -115,17 +121,22 @@ app.post("/urls/:shortURL", (req, res) => {
   if (!longURL.includes('http://')) {
     longURL = 'http://' + longURL
   }
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL].longURL = longURL;
   res.redirect('/urls/')
   // console.log('hello')
 });
 
 app.get("/u/:shortURL", (req, res) => {
   // const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  const longURL = urlDatabase[req.params.shortURL]
-  res.redirect(longURL);
+  const requestedShortURL = req.params.shortURL
+  for (let url in urlDatabase) {
+    if (requestedShortURL === url ) {
+      const longURL = urlDatabase[req.params.shortURL].longURL
+      res.redirect(longURL);
+    }
+  }
+  res.status(400).send("URL not found in database")
 });
-
 
 
 // LIST OF URLS
@@ -135,6 +146,7 @@ app.get("/urls", (req, res) => {
   const templateVars = {urls: urlDatabase, user: users[userID] };
   // log('templateVars:',templateVars)
   // log('user email:',users[userID].email)
+  log('urlDatabase:',urlDatabase)
   res.render("urls_index", templateVars);
 });
 
@@ -149,7 +161,7 @@ app.post("/urls", (req, res) => {
   if (!longURL.includes('http://')) {
     longURL = 'http://' + longURL
   }
-  urlDatabase[shortURL] = longURL
+  urlDatabase[shortURL] = { longURL: longURL, userID: userID }
   res.redirect(`urls/${shortURL}`);         // Respond with 'Ok' (we will replace this)
 });
 
