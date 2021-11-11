@@ -166,6 +166,9 @@ app.get("/u/:shortURL", (req, res) => {
 // LIST OF URLS
 app.get("/urls", (req, res) => {
   const userID = req.cookies["user_id"];
+  if (!userID) {
+    res.render('noLogin')
+  }
   // log(userID)
   log('urlsForUser:',urlsForUser(userID));
   let userUrlDatabase = urlsForUser(userID);
