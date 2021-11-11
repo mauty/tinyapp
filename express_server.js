@@ -1,25 +1,24 @@
 const log = console.log
 
 // CONFIG
-
 const express = require("express");
 const PORT = 8080;
 const app = express();
 
 const morgan = require('morgan');
-app.use(morgan('short'));
-
 const cookieParser = require('cookie-parser');
-app.use(cookieParser())
-
-
+const bcrypt = require('bcryptjs');
 const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
 
+app.use(morgan('short'));
+app.use(cookieParser())
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
 
 
 app.set("view engine", "ejs");
+
+
 
 // HELPER FUNCTIONS
 
@@ -222,7 +221,9 @@ app.get("/login", (req, res) => {
 // REGISTER FORM POST
 app.post("/register", (req, res) => {
   let userID = generateRandomString()
-  let newUser = { id: userID, email: req.body.email, password: req.body.password }
+  const { email, password } = req.body;
+  let hashedPassword = bcrypt.hashSync(password, 10);
+  let newUser = { id: userID, email: email, password: hashedPassword }
   if (newUser.email.length === 0 || newUser.password.length === 0) {
     res.status(400).send('please provide an email and password')
     return;
@@ -238,18 +239,24 @@ app.post("/register", (req, res) => {
   res.redirect('/urls')
 });
 
+
+// const password = "purple-monkey-dinosaur"; // found in the req.params object
+// const hashedPassword = bcrypt.hashSync(password, 10);
+
+
+// LOGIN FORM POST
 app.post("/login", (req, res) => {
   // lookup email in user 
-  let enteredEmail = req.body.email;
-  let enteredPassword = req.body.password;
-  let currentUserID = emailLookup(enteredEmail)
+  const { email, password }  = req.body;
+  let currentUserID = emailLookup(email)
   if (!currentUserID) {
     res.status(403).send('email not found')
   }
-  if (enteredPassword !== users[currentUserID].password ) {
+  // if (enteredPassword !== users[currentUserID].password ) {
+  if (!bcrypt.compareSync(password, users[currentUserID].password)) {
     res.status(403).send('password does not match')
   }
-  if ((enteredEmail === users[currentUserID].email && enteredPassword === users[currentUserID].password)) {
+  if (email === users[currentUserID].email && bcrypt.compareSync(password, users[currentUserID].password)) {
     res.cookie('user_id', currentUserID);
     res.redirect('/urls');
   }
